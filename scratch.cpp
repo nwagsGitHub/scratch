@@ -61,6 +61,7 @@ typedef struct {
 } Lp_info;
 
 int max_b, max_g, max_r;
+int min_b, min_g, min_r;
 
 
 int dbg=0;
@@ -158,14 +159,7 @@ int max_clr(int b, int g, int r)
    *gr_			254+	  0 	- (255+255)						= -256
 	rr_					  0+  0	- (255+		 254)				= -509
 	
-	
-	
-	
-	
 */	
-	
-	
-	
 
 	int colors[5] = { bg_, br_, gg_, gr_, rr_ };
 	return max_idx(bb_, 0, 1, 5, colors);
@@ -221,9 +215,18 @@ int main(int argc, char *argv[])
 	
 	max_b = max_g = max_r = 0;
 	
-	Mat lp_mats[MAX_IMAGES-1];
+	Mat lp_mats[MAX_IMAGES];
 	
+	Mat b_lp_mats[MAX_IMAGES];
+	int *b_lp_sums[MAX_IMAGES];
+	int *b_lp_sum;
 	
+	/*
+	Mat kernel;
+    Point anchor;
+    double delta;
+    int ddepth;
+	*/
 	
 	strcat(art_path, "/");
 	DIR *art_dir_ptr = opendir(strcat(art_path, art_fldr)); 
@@ -325,6 +328,7 @@ int main(int argc, char *argv[])
 		puts("\n");
 		
 		
+		// DIFFS - COLOR CHANNELS - ORDERED ARRAY OF IMAGE POINTERS
 		printf("calculating diffs 1\n");
 		for (int i=0; i < img_count-1; i++)
 		{
@@ -401,6 +405,8 @@ int main(int argc, char *argv[])
 			printf("\n\n\n");
 		}
 		
+		
+		// MAX MIN - COLOR CHANNELS - ARRAY OF IMAGES (IMAGE POINTERS)
 		//Flatten the highest diffs down into img_infos[0]
 		for (int i=(img_count-2); i > 0; i--)
 		{
@@ -498,7 +504,7 @@ int main(int argc, char *argv[])
 		}
 		
 		#elif GRAD_M == 2
-		
+		// OPERATE LAPLACIAN ON ARRAY OF IMAGES
 		puts("\nLaplacian...");
 		for (int i=0; i < img_count; i++)
 		{
@@ -518,12 +524,117 @@ int main(int argc, char *argv[])
 			}
 			puts("\n");
 			namedWindow("lp window", WINDOW_AUTOSIZE);
-			resize(lp_mats[i], lp_mats[i], Size(lp_mats[i].cols/4, lp_mats[i].rows/4) );
+			//resize(lp_mats[i], lp_mats[i], Size(lp_mats[i].cols/4, lp_mats[i].rows/4) );
 			imshow( "lp_window", lp_mats[i] );
 			waitKey(0);
 			src_gray.release();
 			
 		}
+		
+		puts("\nBlur the laplacians...");
+		// BLUR ARRAY OF IMAGES (IMAGE POINTERS)
+		for (int i=0; i < img_count; i++)
+		{
+			//blur(src, dst, ksize);
+			blur(lp_mats[i], b_lp_mats[i], Size(51,51) );
+			for (int y=0; y < 5; y++)
+			{
+				for (int x=0; x < 4; x++)
+				{
+					std::cout << "(" << std::setw(3) << (float)b_lp_mats[i].at<Vec3b>(x,y)[0] << ", "
+						<< std::setw(3) << (float)b_lp_mats[i].at<Vec3b>(y,x)[1] << ", "
+						<< std::setw(3) << (float)b_lp_mats[i].at<Vec3b>(y,x)[2] << ")  ";
+				}
+				puts("");
+			}
+			
+			puts("\n");
+			namedWindow("b_lp window", WINDOW_AUTOSIZE);
+			//resize(b_lp_mats[i], b_lp_mats[i], Size(b_lp_mats[i].cols/4, b_lp_mats[i].rows/4) );
+			imshow( "b_lp_window", b_lp_mats[i] );
+			waitKey(0);
+			
+		}
+		
+		// SUM CHANNELS FOR EACH PIXEL INTO ONE VALUE PER PIXEL (3D->1D)
+		// - ARRAY OF IMAGES (IMAGE POINTERS)
+		for (int i=0; i < img_count; i++)
+		{
+			b_lp_sums[i] = (int *) calloc(rows*cols, sizeof(int) );
+			for (int y=0; y < rows; y++)
+			{
+				for (int x=0; x < cols; x++)
+				{
+					*(b_lp_sums[i]+(y*cols)+x) = 
+									b_lp_mats[i].at<Vec3b>(y,x)[0] +
+									b_lp_mats[i].at<Vec3b>(y,x)[1] +
+									b_lp_mats[i].at<Vec3b>(y,x)[2];
+				}
+			}	
+		}
+		
+		// CALC ARRAY INDEX - MAX PIXEL VALUE (1D) - (ARRAY OF IMAGES)
+		b_lp_sum = (int *) calloc(rows*cols, sizeof(int) );
+		puts("calculating b_lp_sum ... vals");
+		for (int y=0; y < rows; y++)
+		{	
+			if (y < 3)
+				printf("row %d:\n", y);
+			for (int x=0; x < cols; x++)
+			{
+				int lp_vals[img_count-1];
+				if (y < 3 && x < 4)
+					printf(" %3d |", *(b_lp_sums[0]+(y*cols)+x) );
+				for (int i=1; i < img_count; i++)
+				{
+					lp_vals[i-1] = *(b_lp_sums[i]+(y*cols)+x);
+					if (y < 3 && x < 4)
+						printf(" %3d ", *(b_lp_sums[i]+(y*cols)+x) );
+						 
+				}
+				if (y < 3 && x < 4)
+					puts("-");
+				
+				b_lp_sum[y*cols+x] = max_idx(*(b_lp_sums[0]+(y*cols)+x), 0, 1, img_count-1, lp_vals);
+			}
+			if (y < 3)
+				puts("");
+		}
+		puts("b_lp_sum ... idx");
+		for (int y=0; y < 3; y++) {
+			for (int x=0; x < 8; x++) {
+				printf("(%2d)  ", b_lp_sum[y*cols+x]);
+			}
+			puts("");
+		}
+		
+		// PICK PIXELS FROM ARRAY OF IMAGES BASED AND PUT INTO SINGLE IMAGE
+		puts("pull pixels from image based on b_lp_sum idx");
+		for (int y=0; y < rows; y++)
+		{
+			for (int x=0; x < cols; x++)
+			{
+				mat_infos[0]->image->at<Vec3b>(y,x).val[0] = 
+				mat_infos[ b_lp_sum[y*cols+x] ]->image->at<Vec3b>(y,x).val[0];
+				
+				mat_infos[0]->image->at<Vec3b>(y,x).val[1] = 
+				mat_infos[ b_lp_sum[y*cols+x] ]->image->at<Vec3b>(y,x).val[1];
+				
+				mat_infos[0]->image->at<Vec3b>(y,x).val[2] = 
+				mat_infos[ b_lp_sum[y*cols+x] ]->image->at<Vec3b>(y,x).val[2];
+				
+			}
+		}	 
+		
+		
+		
+		//namedWindow("test image", WINDOW_AUTOSIZE);
+		//resize(*mat_infos[0]->image, *mat_infos[0]->image, Size(cols/4, rows/4) );
+		//imshow( "test_image", *mat_infos[0]->image );
+		//waitKey(0);
+		
+		
+		
 		
 		#elif GRAD_M == 3
 		
@@ -579,7 +690,10 @@ int main(int argc, char *argv[])
 		
 		#endif
 		
-		
+		//kernel;
+    	//anchor;
+    	//delta;
+    	//ddepth;
 		
 		//filter2D(src, dst, ddepth , kernel, anchor, delta, BORDER_DEFAULT );
 		
@@ -605,7 +719,7 @@ int main(int argc, char *argv[])
 				(flt_info.image+(y*cols)+x)->red = 
 					(float)(img_infos[0]->image+(y*cols)+x)->red / (float)max_r;
 				(flt_info.image+(y*cols)+x)->clr_idx = 
-					max_clr( (img_infos[0]->image+(y*cols)+x)->blue,
+					max_clr(	(img_infos[0]->image+(y*cols)+x)->blue,
 								(img_infos[0]->image+(y*cols)+x)->green,
 								(img_infos[0]->image+(y*cols)+x)->red );
 			}

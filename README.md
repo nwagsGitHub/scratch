@@ -1,9 +1,10 @@
-#THIS REPO IS ***SCRATCH*** WORK#
+# THIS REPO IS ***SCRATCH*** WORK
 This repo is scratch work for playing with some opencv functionaliy. 
 
 It is 
-- NOT neatly organized 
-- NOT properly commented for other developers to follow
+- NOT neatly organized, 
+- NOT properly commented for other developers to follow,
+- NOT optimized against memory leaks,
 - NOT guaranteed in any way whatsoever.
 It is ***scratch*** work.
 
