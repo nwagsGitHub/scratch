@@ -293,12 +293,9 @@ int main(int argc, char *argv[])
 
 						for (int c=0; c < mats[img_count].channels(); c++) 
 						{
-							
 							total_sum+=mats[img_count].at<Vec3b>(y,x).val[c];
-							mat_infos[img_count]->tot = total_sum;
-							
 						}
-						
+						mat_infos[img_count]->tot = total_sum;
 					}
 					
 				}
