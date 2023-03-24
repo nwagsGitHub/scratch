@@ -38,6 +38,29 @@ Mat mat_16u = Mat::ones(rows_t, cols_t, CV_16U)*2;
 Mat mat_32u = Mat::ones(rows_t, cols_t, CV_32U)*100;
 Mat mats[3] = {mat_8u, mat_16u, mat_32u};
 
+bgrPxl img3_test1[ rows_t*cols_t ];
+bgrPxl pxl1 = {1,1,1};
+for (int i=0; i < rows_t*cols_t; i++)
+{
+	img3_test1[i] = pxl1;
+}
+
+bgrPxl img3_test2[ rows_t*cols_t ];
+bgrPxl pxl2 = {50,100,150};
+for (int i=0; i < rows_t*cols_t; i++)
+{
+	img3_test2[i] = pxl2;
+}
+
+bgrPxl img3_test3[ rows_t*cols_t ];
+bgrPxl pxl3 = {25, 0, 5};
+for (int i=0; i < rows_t*cols_t; i++)
+{
+	img3_test3[i] = pxl2;
+}
+
+bgrPxl img3s_input1 = {img3_test1, img3_test2, img3_test3};
+
 
 /*
 
@@ -147,7 +170,8 @@ test_mats_to_sums()
 	unsigned long int sum_e3 = rows_t * cols_t * 100;
 	unsigned long int sums_e[3] = {sum_e1, sum_e2, sum_e3};
 	unsigned long int *sums_r = mats_to_sums(3, mats_ones);
-	mu_assert( !memcmp(sums_e, sums_r), "sums mismatch");
+	mu_assert( !memcmp(sums_e, sums_r, sizeof(unsigned long int)*3), 
+		"sums mismatch");
 	
 	free(sums_r);
 	
@@ -165,15 +189,15 @@ test_mats_into_sums()
 char *
 test_mat_to_imgSum()
 {
-	int int_e1[rows*cols];
-	for (int i=0; i < rows*cols; i++)
+	int int_e1[rows_t*cols_t];
+	for (int i=0; i < rows_t*cols_t; i++)
 	{
 		int_e1[i] = 3;
 	}
 	
 	int *imgSum = mat_to_imgSum(mat_8u);
 	
-	mu_assert( !memcmp(int_e1,imgSum), "imgSum mismatch");
+	mu_assert( !memcmp(int_e1, imgSum, sizeof(int)*rows_t*cols_t), "imgSum mismatch");
 	
 	free(imgSum);
 	
@@ -184,19 +208,19 @@ test_mat_to_imgSum()
 char *
 test_mat_into_imgSum()
 {
-	int int_e1[rows*cols];
-	for (int i=0; i < rows*cols; i++)
+	int int_e1[rows_t*cols_t];
+	for (int i=0; i < rows_t*cols_t; i++)
 	{
 		int_e1[i] = 6;
 	}
 	
-	int *imgSum1 = (int *) calloc( rows * cols, sizeof(int) );
+	int *imgSum1 = (int *) calloc( rows_t * cols_t, sizeof(int) );
 	mat_into_imgSum(mat_16u, imgSum1);
 	
-	mu_assert( !memcmp(int_e1,imgSum1), "imgSum mismatch");
+	mu_assert( !memcmp(int_e1, imgSum1, sizeof(int)*rows_t*cols_t), "imgSum1 mismatch");
 	
 	int *imgSum2 = mat_to_imgSum(mat_16u);
-	mu_assert( !memcmp(imgSum1, imgSum2), "imgSum1 <> imgSum2");
+	mu_assert( !memcmp(imgSum1, imgSum2, sizeof(int)*rows_t*cols_t), "imgSum1 <> imgSum2");
 	
 	
 	free(imgSum1);
@@ -207,41 +231,193 @@ test_mat_into_imgSum()
 char *
 test_img3_to_imgSum()
 {
-
+	int int_e1[rows_t*cols_t];
+	for (int i=0; i < rows_t*cols_t; i++)
+	{
+		int_e1[i] = 3;
+	}
+	
+	int *imgSum = img3_to_imgSum(img3_test1);
+	
+	mu_assert( !memcmp(int_e1, imgSum, sizeof(int)*rows_t*cols_t, "imgSum mismatch");
+	
+	free(imgSum);
+	
+	return NULL;
 }
 
 
 char *
 test_img3_into_imgSum()
 {
-
+	int int_e1[rows_t*cols_t];
+	for (int i=0; i < rows_t*cols_t; i++)
+	{
+		int_e1[i] = 300;
+	}
+	
+	int *imgSum1 = (int *) calloc( rows_t * cols_t, sizeof(int) );
+	img3_into_imgSum(img3_test2, imgSum1);
+	
+	mu_assert( !memcmp(int_e1, imgSum1, sizeof(int)*rows_t*cols_t), 
+		"imgSum1 mismatch");
+	
+	int *imgSum2 = img3_to_imgSum(img3_test2);
+	mu_assert( !memcmp(imgSum1, imgSum2, sizeof(int)*rows_t*cols_t), 
+		"imgSum1 <> imgSum2");
+	
+	
+	free(imgSum1);
+	free(imgSum2);
 }
 
 
 char *
 test_mats_to_imgSums()
 {
+	int ints_e1[3][rows_t*cols_t];
+	for (int i=0; i < 3; i++)
+	{
+		for (int j=0; j < rows_t*cols_t; j++)
+		{
+			if (i==0)
+				ints_e1[i][j] = 3;
+			if (i==1)
+				ints_e1[i][j] = 6;
+			if (i==2)
+				ints_e1[i][j] = 300;
+		}
+	}
 
+	int **imgSums = mats_to_imgSums(mats);
+	
+	for (img i=0; i < 3; i++)
+	{
+		mu_assert( !memcmp(ints_e1[i], *(imgSums+i), sizeof(int)*rows_t*cols_t), 
+			"an imgSums' imgSum not correct");
+	}
+	
+	for (img i=0; i < 3; i++)
+	{
+		imgSums[i];
+	}
+	free(imgSums);
+	
+	return NULL;
 }
 
 
 char *
 test_mats_into_imgSums()
 {
+	int ints_e1[3][rows_t*cols_t];
+	for (int i=0; i < 3; i++)
+	{
+		for (int j=0; j < rows_t*cols_t; j++)
+		{
+			if (i==0)
+				ints_e1[i][j] = 3;
+			if (i==1)
+				ints_e1[i][j] = 6;
+			if (i==2)
+				ints_e1[i][j] = 300;
+		}
+	}
 
+	int **imgSums = (int **) calloc( 3, sizeof(int *) );
+	for (int i=0; i < 3; i++)
+	{
+		*(imgSums+i) = (int *) calloc( rows_t * cols_t, sizeof(int) );
+	}
+	mats_into_imgSums(mats, imgSums);
+	
+	for (int i=0; i < 3; i++)
+	{
+		mu_assert( !memcmp(ints_e1[3], *(imgSums*i), sizeof(int)*rows_t*cols_t), 
+			"an imgSums' imgSum not correct");
+	}
+	
+	for (int i=0; i < 3; i++)
+	{
+		free(imgSums[i]);
+	}
+	free(imgSums);
+	
+	return NULL;
 }
 
 
 char *
 test_img3s_to_imgSums()
 {
+	int ints_e1[3][rows_t*cols_t];
+	for (int i=0; i < 3; i++)
+	{
+		for (int j=0; j < rows_t*cols_t; j++)
+		{
+			if (i==0)
+				ints_e1[i][j] = 3;
+			if (i==1)
+				ints_e1[i][j] = 300;
+			if (i==2)
+				ints_e1[i][j] = 30;
+		}
+	}
 
+	int **imgSums = img3s_to_imgSums(img3s_input1);
+	
+	for (img i=0; i < 3; i++)
+	{
+		mu_assert( !memcmp(ints_e1[i], *(imgSums+i), sizeof(int)*rows_t*cols_t), 
+			"an imgSums' imgSum not correct");
+	}
+	
+	for (img i=0; i < 3; i++)
+	{
+		imgSums[i];
+	}
+	free(imgSums);
+	
+	return NULL;
 }
 
 char *
 test_img3s_into_imgSums()
 {
+	int ints_e1[3][rows_t*cols_t];
+	for (int i=0; i < 3; i++)
+	{
+		for (int j=0; j < rows_t*cols_t; j++)
+		{
+			if (i==0)
+				ints_e1[i][j] = 3;
+			if (i==1)
+				ints_e1[i][j] = 300;
+			if (i==2)
+				ints_e1[i][j] = 30;
+		}
+	}
 
+	int **imgSums = (int **) calloc( 3, sizeof(int *) );
+	for (int i=0; i < 3; i++)
+	{
+		*(imgSums+i) = (int *) calloc( rows_t * cols_t, sizeof(int) );
+	}
+	img3s_into_imgSums(mats, img3s_input1);
+	
+	for (int i=0; i < 3; i++)
+	{
+		mu_assert( !memcmp(ints_e1[3], *(imgSums*i), sizeof(int)*rows_t*cols_t), 
+			"an imgSums' imgSum not correct");
+	}
+	
+	for (int i=0; i < 3; i++)
+	{
+		free(imgSums[i]);
+	}
+	free(imgSums);
+	
+	return NULL;
 }
 
 

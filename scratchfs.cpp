@@ -17,6 +17,7 @@ idx_cmp (	int x,
 		int (*compar) (const void*, const void*)	)
 {
 	int next_x = xs[0];
+	
 	if (xs_size==1)
 		return compar(x, next_x) ? idx_x : idx_next;
 	else
@@ -198,7 +199,6 @@ img3_into_imgSum (	int rows,
 				bgrPxl *img3	
 				int *imgSum	)
 {
-	
 	for (int y=0; y < rows; y++)
 	{
 		for (int x=0; x < cols; x++)
