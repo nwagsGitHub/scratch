@@ -9,139 +9,99 @@
 #include "scratchfs.h"
 
 /*
-bgrPxl *img3_input1, *img3_input2, *img3_expected1;
-bgrPxlF *img3F_input1, *img3F_expected1;
-bgrPxl **img3s_input1, **img3s_expected1;
+bgrPxl *imgPxl_input1, *imgPxl_input2, *imgPxl_expected1;
+bgrPxlF *imgPxlF_input1, *imgPxlF_expected1;
+bgrPxl **imgPxls_input1, **imgPxls_expected1;
 Mat mat_input1, mat_expected;
 Mat *mats_input1;
 int *img1_input1, *img1_input2;
 */
 
-int test_int;
-float test_float;
 
-int count_t = 3;
-int rows_t = 3;
-int cols_t = 4;
-int rxc_t = rows_t * cols_t;
-
-int lesser_int = 1;
-int greater_int = lesser_int + 1;
-
-
-
-int img1_input1[5] = {  1,  2,  3,  4,  5 };
-int img1_input2[5] = {  4,  0,  1,  4,  3 };
-
-Mat mat_8u = Mat::ones(rows_t, cols_t, CV_8U);
-Mat mat_16u = Mat::ones(rows_t, cols_t, CV_16U)*2;
-Mat mat_32u = Mat::ones(rows_t, cols_t, CV_32U)*100;
-Mat mats[3] = {mat_8u, mat_16u, mat_32u};
-
-bgrPxl img3_test1[ rows_t*cols_t ];
-bgrPxl pxl1 = {1,1,1};
-for (int i=0; i < rows_t*cols_t; i++)
-{
-	img3_test1[i] = pxl1;
-}
-
-bgrPxl img3_test2[ rows_t*cols_t ];
-bgrPxl pxl2 = {50,100,150};
-for (int i=0; i < rows_t*cols_t; i++)
-{
-	img3_test2[i] = pxl2;
-}
-
-bgrPxl img3_test3[ rows_t*cols_t ];
-bgrPxl pxl3 = {25, 0, 5};
-for (int i=0; i < rows_t*cols_t; i++)
-{
-	img3_test3[i] = pxl2;
-}
-
-bgrPxl img3s_input1 = {img3_test1, img3_test2, img3_test3};
 
 
 /*
 
 idx_cmp
-	gt_cmp
-	lt_cmp
+	cmp_gt
+	cmp_lt
 bgr_sv_idx
 mats_to_sums
 mats_into_sums
 mat_to_imgSum
 mat_into_imgSum
-img3_to_imgSum
-img3_into_imgSum
+imgPxl_to_imgSum
+imgPxl_into_imgSum
 mats_to_imgSums
 mats_into_imgSums
-img3s_to_imgSums
-img3s_into_imgSums
+imgPxls_to_imgSums
+imgPxls_into_imgSums
 img1s_imgIdx
-matsBGR_to_img3Diffs
-matsBGR_into_img3Diffs
-img3s_to_img3Diffs
-img3s_into_img3Diffs
-img3s_cmp_bgrPxl
-acc_img3_img3
-acc_img3_mat
-divf_img3_by_img3_to_img3f
-divf_img3_by_img3_into_img3f
-mul_img3_by_img3f
-mul_img3_by_img3f_to_img3
-mul_img3_by_img3f_into_img3
-img3_into_mat
+matsBGR_to_imgPxlDiffs
+matsBGR_into_imgPxlDiffs
+imgPxls_to_imgPxlDiffs
+imgPxls_into_imgPxlDiffs
+imgPxls_cmp_bgrPxl
+acc_imgPxl_imgPxl
+acc_imgPxl_mat
+divf_imgPxl_by_imgPxl_to_imgPxlf
+divf_imgPxl_by_imgPxl_into_imgPxlf
+mul_imgPxl_by_imgPxlf
+mul_imgPxl_by_imgPxlf_to_imgPxl
+mul_imgPxl_by_imgPxlf_into_imgPxl
+imgPxl_into_mat
 
 */
 
 
 char *
-test_gt_cmp()
+test_cmp_gt()
 {
-	mu_assert( gt_cmp(greater_int, lesser_int), "should be a > b, but not");
-	mu_assert( !gt_cmp(lesser_int, greater_int), "should be a < b, but not"); 
+	mu_assert( cmp_gt(g_int, l_int), "should be a > b, but not");
+	mu_assert( !cmp_gt(l_int, g_int), "should be a < b, but not"); 
 }
 
 
 char *
-test_lt_cmp()
+test_cmp_lt()
 {
-	mu_assert( lt_cmp(lesser_int, greater_int), "should be a < b, but not");
-	mu_assert( !lt_cmp(greater_int, lesser_int), "should be a > b, but not");
+	mu_assert( cmp_lt(l_int, g_int), "should be a < b, but not");
+	mu_assert( !cmp_lt(g_int, l_int), "should be a > b, but not");
 }
 
 
 char *
 test_idx_cmp()
 {
-	int *img1_t = &img1_input1[1];
-	int int_t = img1_input1[0];
-	int int_r = idx_cmp(int_t, 0, 1, 4, img1_t, gt_cmp);
-	int int_e = 4;
-	mu_assert( int_e == int_r, "gt_cmp, already ordered");
+	int c = t1_count-1;
 	
-	int int_r = idx_cmp(int_t, 0, 1, 4, img1_t, lt_cmp);
-	int_e = 0;
-	mu_assert( int_e == int_r, "lt_cmp, already ordered");
+	int x   =  t1_img1_0[0];
+	int *xs = &t1_img1_0[1];
+	int r = idx_cmp(x, 0, 1, c, xs, cmp_gt);
+	int e = 4;
+	mu_assert( r == e, "cmp_gt, already ordered");
 	
-	int_r = idx_cmp(int_t, 0, 3, 4, img1_t, gt_cmp);
-	int_e = 6;
-	mu_assert( int_e == int_r, "gt_cmp, idx_next, already ordered");
+	r = idx_cmp(x, 0, 1, c, xs, cmp_lt);
+	e = 0;
+	mu_assert( r == e, "cmp_lt, already ordered");
 	
-	int_r = idx_cmp(int_t, 0, 3, 4, img1_t, lt_cmp);
-	int_e = 0;
-	mu_assert( int_e == int_r, "lt_cmp, idx_next, already ordered");
+	r = idx_cmp(x, 0, 3, c, xs, cmp_gt);
+	e = 6;
+	mu_assert( r == e, "cmp_gt, idx_next, already ordered");
 	
-	img1_t = &img1_input2[1];
-	int_t = img1_input2[0];
-	int_r = idx_cmp(int_t, 0, 1, 4, img1_t, gt_cmp);
-	int_e = 3;
-	mu_assert( int_e == int_r, "gt_cmp, x high, same as val at idx 3");
+	r = idx_cmp(x, 0, 3, c, xs, cmp_lt);
+	e = 0;
+	mu_assert( r == e, "cmp_lt, idx_next, already ordered");
 	
-	int_r = idx_cmp(int_t, 0, 1, 4, img1_t, lt_cmp);
-	int_e = 1;
-	mu_assert( int_e == int_r, "lt_cmp, val at idx 1 low");
+	x = t1_img1_1[0];
+	xs = &t1_img1_1[1];
+	r = idx_cmp(x, 0, 1, c, xs, cmp_gt);
+	e = 3;
+	mu_assert( r == e, "cmp_gt, x high, same as val at idx 3");
+	
+	r = idx_cmp(int_t, 0, 1, c, xs, cmp_lt);
+	e = 1;
+	mu_assert( r == e, "cmp_lt, val at idx 1 low");
 	
 	return NULL;
 }
@@ -165,15 +125,11 @@ test_bgr_sv_idx()
 char *
 test_mats_to_sums()
 {
-	unsigned long int sum_e1 = rows_t * cols_t;
-	unsigned long int sum_e2 = rows_t * cols_t * 2;
-	unsigned long int sum_e3 = rows_t * cols_t * 100;
-	unsigned long int sums_e[3] = {sum_e1, sum_e2, sum_e3};
-	unsigned long int *sums_r = mats_to_sums(3, mats_ones);
-	mu_assert( !memcmp(sums_e, sums_r, sizeof(unsigned long int)*3), 
+	unsigned long int *r_sums = mats_to_sums(t0_count, mats_ones);
+	mu_assert( !memcmp(r_sums, e0_sums_0, sizeof(unsigned long int)*t0_count), 
 		"sums mismatch");
 	
-	free(sums_r);
+	free(r_sums);
 	
 	return NULL;
 }
@@ -182,6 +138,13 @@ test_mats_to_sums()
 char *
 test_mats_into_sums()
 {
+	unsigned long int *r_sums = (unsigned long *) calloc( t0_count, sizeof(unsigned long) );
+	mats_to_sums(t1_count, mats_ones, r_sums);
+	
+	mu_assert( !memcmp(r_sums, e0_sums_0, sizeof(unsigned long int)*t0_count), 
+		"sums mismatch");
+	
+	free(r_sums);
 	
 	return NULL;
 }
@@ -189,17 +152,11 @@ test_mats_into_sums()
 char *
 test_mat_to_imgSum()
 {
-	int int_e1[rows_t*cols_t];
-	for (int i=0; i < rows_t*cols_t; i++)
-	{
-		int_e1[i] = 3;
-	}
+	int *r_imgSum = mat_to_imgSum(mat_8u);
 	
-	int *imgSum = mat_to_imgSum(mat_8u);
+	mu_assert( !memcmp(r_imgSum, e0_imgSum_0, sizeof(int)*r0_rXc), "imgSum mismatch");
 	
-	mu_assert( !memcmp(int_e1, imgSum, sizeof(int)*rows_t*cols_t), "imgSum mismatch");
-	
-	free(imgSum);
+	free(r_imgSum);
 	
 	return NULL;
 }
@@ -208,100 +165,68 @@ test_mat_to_imgSum()
 char *
 test_mat_into_imgSum()
 {
-	int int_e1[rows_t*cols_t];
-	for (int i=0; i < rows_t*cols_t; i++)
-	{
-		int_e1[i] = 6;
-	}
+	int *r_imgSum_0 = (int *) calloc( t0_rXc, sizeof(int) );
+	mat_into_imgSum(mat_16u, r_imgSum_0);
 	
-	int *imgSum1 = (int *) calloc( rows_t * cols_t, sizeof(int) );
-	mat_into_imgSum(mat_16u, imgSum1);
+	mu_assert( !memcmp(r_imgSum_0, e0_imgSum_0, sizeof(int)*t0_rXc), "r_imgSum_0 mismatch");
 	
-	mu_assert( !memcmp(int_e1, imgSum1, sizeof(int)*rows_t*cols_t), "imgSum1 mismatch");
-	
-	int *imgSum2 = mat_to_imgSum(mat_16u);
-	mu_assert( !memcmp(imgSum1, imgSum2, sizeof(int)*rows_t*cols_t), "imgSum1 <> imgSum2");
+	int *r_imgSum_1 = mat_to_imgSum(mat_16u);
+	mu_assert( !memcmp(r_imgSum0, r_imgSum_1, sizeof(int)*t0_rXc), "r_imgSum_0 <> r_imgSum_1");
 	
 	
-	free(imgSum1);
-	free(imgSum2);
+	free(r_imgSum_0);
+	free(r_imgSum_1);
 }
 
 
 char *
-test_img3_to_imgSum()
+test_imgPxl_to_imgSum()
 {
-	int int_e1[rows_t*cols_t];
-	for (int i=0; i < rows_t*cols_t; i++)
-	{
-		int_e1[i] = 3;
-	}
+	int *r_imgSum = imgPxl_to_imgSum(t0_imgPxl_0);
 	
-	int *imgSum = img3_to_imgSum(img3_test1);
+	mu_assert( !memcmp(r_imgSum, e0_imgSum_0, sizeof(int)*t0_rXc, "r_imgSum mismatch");
 	
-	mu_assert( !memcmp(int_e1, imgSum, sizeof(int)*rows_t*cols_t, "imgSum mismatch");
-	
-	free(imgSum);
+	free(r_imgSum);
 	
 	return NULL;
 }
 
 
 char *
-test_img3_into_imgSum()
+test_imgPxl_into_imgSum()
 {
-	int int_e1[rows_t*cols_t];
-	for (int i=0; i < rows_t*cols_t; i++)
-	{
-		int_e1[i] = 300;
-	}
+	int *r_imgSum_0 = (int *) calloc( t0_rXc, sizeof(int) );
+	imgPxl_into_imgSum(t0_imgPxl_2, r_imgSum_0);
 	
-	int *imgSum1 = (int *) calloc( rows_t * cols_t, sizeof(int) );
-	img3_into_imgSum(img3_test2, imgSum1);
+	mu_assert( !memcmp(r_imgSum_0, e0_imgSum_2, sizeof(int)*t0_rXc), 
+		"r_imgSum_0 mismatch");
 	
-	mu_assert( !memcmp(int_e1, imgSum1, sizeof(int)*rows_t*cols_t), 
-		"imgSum1 mismatch");
-	
-	int *imgSum2 = img3_to_imgSum(img3_test2);
-	mu_assert( !memcmp(imgSum1, imgSum2, sizeof(int)*rows_t*cols_t), 
-		"imgSum1 <> imgSum2");
+	int *r_imgSum_1 = imgPxl_to_imgSum(t0_imgPxl_2);
+	mu_assert( !memcmp(r_imgSum_0, r_imgSum_1, sizeof(int)*t0_rXc), 
+		"r_imgSum_0 <> r_imgSum_1");
 	
 	
-	free(imgSum1);
-	free(imgSum2);
+	free(r_imgSum_0);
+	free(r_imgSum_1);
 }
 
 
 char *
 test_mats_to_imgSums()
 {
-	int ints_e1[3][rows_t*cols_t];
-	for (int i=0; i < 3; i++)
-	{
-		for (int j=0; j < rows_t*cols_t; j++)
-		{
-			if (i==0)
-				ints_e1[i][j] = 3;
-			if (i==1)
-				ints_e1[i][j] = 6;
-			if (i==2)
-				ints_e1[i][j] = 300;
-		}
-	}
-
-	int **imgSums = mats_to_imgSums(mats);
+	int **r_imgSums = mats_to_imgSums(mats);
 	
-	for (img i=0; i < 3; i++)
+	for (img i=0; i < t0_count; i++)
 	{
-		mu_assert( !memcmp(ints_e1[i], *(imgSums+i), sizeof(int)*rows_t*cols_t), 
-			"an imgSums' imgSum not correct");
+		mu_assert( !memcmp(*(r_imgSums+i), e0_imgSums_0[i], sizeof(int)*t0_rXc), 
+			"an r_imgSums' imgSum not correct");
 	}
 	
-	for (img i=0; i < 3; i++)
+	for (img i=0; i < t0_count; i++)
 	{
-		imgSums[i];
+		free(r_imgSums[i]);
 	}
-	free(imgSums);
+	free(r_imgSums);
 	
 	return NULL;
 }
@@ -310,253 +235,480 @@ test_mats_to_imgSums()
 char *
 test_mats_into_imgSums()
 {
-	int ints_e1[3][rows_t*cols_t];
-	for (int i=0; i < 3; i++)
+	int **r_imgSums = (int **) calloc( t0_count, sizeof(int *) );
+	for (int i=0; i < t0_count; i++)
 	{
-		for (int j=0; j < rows_t*cols_t; j++)
-		{
-			if (i==0)
-				ints_e1[i][j] = 3;
-			if (i==1)
-				ints_e1[i][j] = 6;
-			if (i==2)
-				ints_e1[i][j] = 300;
-		}
+		*(r_imgSums+i) = (int *) calloc( t0_rXc, sizeof(int) );
 	}
-
-	int **imgSums = (int **) calloc( 3, sizeof(int *) );
-	for (int i=0; i < 3; i++)
-	{
-		*(imgSums+i) = (int *) calloc( rows_t * cols_t, sizeof(int) );
-	}
-	mats_into_imgSums(mats, imgSums);
+	mats_into_imgSums(mats, r_imgSums);
 	
-	for (int i=0; i < 3; i++)
+	for (int i=0; i < t0_count; i++)
 	{
-		mu_assert( !memcmp(ints_e1[3], *(imgSums*i), sizeof(int)*rows_t*cols_t), 
-			"an imgSums' imgSum not correct");
+		mu_assert( !memcmp(*(imgSums*i), e0_imgSums_0[i], sizeof(int)*t0_rXc), 
+			"an r_imgSums' imgSum not correct");
 	}
 	
-	for (int i=0; i < 3; i++)
+	for (int i=0; i < t0_count; i++)
 	{
-		free(imgSums[i]);
+		free(r_imgSums[i]);
 	}
-	free(imgSums);
+	free(r_imgSums);
 	
 	return NULL;
 }
 
 
 char *
-test_img3s_to_imgSums()
+test_imgPxls_to_imgSums()
 {
-	int ints_e1[3][rows_t*cols_t];
-	for (int i=0; i < 3; i++)
-	{
-		for (int j=0; j < rows_t*cols_t; j++)
-		{
-			if (i==0)
-				ints_e1[i][j] = 3;
-			if (i==1)
-				ints_e1[i][j] = 300;
-			if (i==2)
-				ints_e1[i][j] = 30;
-		}
-	}
-
-	int **imgSums = img3s_to_imgSums(img3s_input1);
+	int **r_imgSums = imgPxls_to_imgSums(t0_imgPxls_0);
 	
-	for (img i=0; i < 3; i++)
+	for (img i=0; i < t0_count; i++)
 	{
-		mu_assert( !memcmp(ints_e1[i], *(imgSums+i), sizeof(int)*rows_t*cols_t), 
-			"an imgSums' imgSum not correct");
+		mu_assert( !memcmp(*(r_imgSums+i), e0_imgSums_0[i], sizeof(int)*t0_rXc), 
+			"an r_imgSums' imgSum not correct");
 	}
 	
-	for (img i=0; i < 3; i++)
+	for (img i=0; i < t0_count; i++)
 	{
-		imgSums[i];
+		free(r_imgSums[i]);
 	}
-	free(imgSums);
+	free(r_imgSums);
 	
 	return NULL;
 }
 
 char *
-test_img3s_into_imgSums()
+test_imgPxls_into_imgSums()
 {
-	int ints_e1[3][rows_t*cols_t];
-	for (int i=0; i < 3; i++)
+	int **r_imgSums = (int **) calloc( t0_count, sizeof(int *) );
+	for (int i=0; i < t0_count; i++)
 	{
-		for (int j=0; j < rows_t*cols_t; j++)
-		{
-			if (i==0)
-				ints_e1[i][j] = 3;
-			if (i==1)
-				ints_e1[i][j] = 300;
-			if (i==2)
-				ints_e1[i][j] = 30;
-		}
+		*(r_imgSums+i) = (int *) calloc( t0_rXc, sizeof(int) );
 	}
-
-	int **imgSums = (int **) calloc( 3, sizeof(int *) );
-	for (int i=0; i < 3; i++)
-	{
-		*(imgSums+i) = (int *) calloc( rows_t * cols_t, sizeof(int) );
-	}
-	img3s_into_imgSums(mats, img3s_input1);
+	imgPxls_into_imgSums(t0_imgPxls_0, r_imgSums);
 	
-	for (int i=0; i < 3; i++)
+	for (int i=0; i < t0_count; i++)
 	{
-		mu_assert( !memcmp(ints_e1[3], *(imgSums*i), sizeof(int)*rows_t*cols_t), 
-			"an imgSums' imgSum not correct");
+		mu_assert( !memcmp( *(r_imgSums+i), e0_imgSums_0[i], sizeof(int)*t0_rXc), 
+			"an r_imgSums' imgSum not correct");
 	}
 	
-	for (int i=0; i < 3; i++)
+	for (int i=0; i < t0_count; i++)
 	{
-		free(imgSums[i]);
+		free(r_imgSums[i]);
 	}
-	free(imgSums);
+	free(r_imgSums);
 	
 	return NULL;
 }
 
 
 char *
-test_img1s_imgIdx()
+test_imgInts_imgIdx()
+{
+	int *r_imgIdx_0 = imgInts_imgIdx(t1_count, t1_rows, t1_cols, cmp_gt, t1_imgInts_0 );
+	mu_assert( !memcmp(r_imgIdx_0, r1_gt_imgInt, sizeof(int)*t1_rXc), "problem with gt" );
+	
+	int *r_imgIdx_1 = imgInts_imgIdx(t1_count, t1_rows, t1_cols, cmp_lt, t1_imgInts_0 );
+	mu_assert( !memcmp(r_imgIdx_1, r1_lt_imgInt, sizeof(int)*t1_rXc), "problem with lt" );
+	
+	free(r_imgIdx_0);
+	free(r_imgIdx_1);
+}
+
+
+char *
+test_matsBGR_to_imgPxlDiffs()
+{
+	bgrPxl **r_imgPxlDiffs = matsBGR_into_imgPxlDiffs( t0_count, mats);
+
+	for (int i=0; i < t0_count-1 ; i++)
+	{
+		mu_assert( !memcmp(r_imgPxlDiffs[i], e0_imgDiffs_mats[i], sizeof(bgrPxl)*t0_rXc),
+			"r_imgPxlDiffs' imgPxlDiff error");
+	}
+	
+	for (int i=0; i < t0_count-1; i++)
+	{
+		free(r_imgPxlDiffs[i]);
+	}
+	free(r_imgPxlDiffs);
+	
+	return NULL;
+}
+
+char *
+test_matsBGR_into_imgPxlDiffs()
+{
+	bgrPxl **r_imgPxlDiffs;
+	for (int i=0; i < t0_count-1; i++)
+	{
+		*(r_imgPxlDiffs+i) = (bgrPxl *) calloc( t0_rXc, sizeof(bgrPxl) );
+	} 
+	
+	matsBGR_into_imgPxlDiffs( t0_count, mats, r_imgPxlDiffs);
+
+	for (int i=0; i < t0_count-1 ; i++)
+	{
+		mu_assert( !memcmp(r_imgPxlDiffs[i], e0_imgDiffs_mats[i], sizeof(bgrPxl)*t0_rXc),
+			"r_imgPxlDiffs' imgPxlDiff error");
+	}
+	
+	for (int i=0; i < t0_count-1; i++)
+	{
+		free(r_imgPxlDiffs[i]);
+	}
+	free(r_imgPxlDiffs);
+	
+	return NULL;
+}
+
+char *
+test_imgPxls_to_imgPxlDiffs()
+{
+	bgrPxl **r_imgPxlDiffs = imgPxls_to_imgPxlDiffs( t0_count, t0_imgPxls_0);
+
+	for (int i=0; i < t0_count-1 ; i++)
+	{
+		mu_assert( !memcmp(r_imgPxlDiffs[i], e0_imgDiffs_pxls[i], sizeof(bgrPxl)*t0_rXc),
+			"r_imgPxlDiffs' imgPxlDiff error");
+	}
+	
+	for (int i=0; i < t0_count-1; i++)
+	{
+		free(r_imgPxlDiffs[i]);
+	}
+	free(r_imgPxlDiffs);
+	
+	return NULL;
+}
+
+char *
+test_imgPxls_into_imgPxlDiffs()
+{
+	bgrPxl **r_imgPxlDiffs;
+	for (int i=0; i < t0_count-1; i++)
+	{
+		*(r_imgPxlDiffs+i) = (bgrPxl *) calloc( t0_rXc, sizeof(bgrPxl *) );
+	} 
+	
+	imgPxls_into_imgPxlDiffs( t0_count, t0_imgPxls_0, r_imgPxlDiffs);
+
+	for (int i=0; i < t0_count-1 ; i++)
+	{
+		mu_assert( !memcmp(r_imgPxlDiffs[i], e0_imgDiffs_mats[i], sizeof(bgrPxl)*t0_rXc),
+			"r_imgPxlDiffs' imgPxlDiff error");
+	}
+	
+	for (int i=0; i < t0_count-1; i++)
+	{
+		free(r_imgPxlDiffs[i]);
+	}
+	free(r_imgPxlDiffs);
+	
+	return NULL;
+}
+
+
+char *
+test_imgPxls_cmp_bgrPxl()
+{
+	bgrPxl r_pxl = imgPxls_cmp_bgrPxl(t0_count, t0_rows, t0_cols, cmp_gt, t0_imgPxls_0);
+	
+	mu_assert(r_pxl == e0_gt_pxl, "gt pixel wrong");
+	
+	r_pxl = imgPxls_cmp_bgrPxl(t0_count, t0_rows, t0_cols, cmp_lt, t0_imgPxls_0);
+	
+	mu_assert(r_pxl == e0_lt_pxl, "lt pixel wrong");
+}
+
+
+char *
+test_acc_imgPxl_imgPxl()
+{
+	bgrPxl *r_imgPxl = (bgrPxl *) calloc( t0_rXc, sizeof(bgrPxl) );
+	acc_imgPxl_imgPxl(t0_rows, t0_cols, r_imgPxl, t0_imgPxl_0);
+	
+	mu_assert( !memcmp(r_imgPxl, t0_imgPxl_0, sizeof(bgrPxl)*t0_rXc) );
+	
+	free(r_imgPxl);
+}
+
+
+char *
+test_acc_imgPxl_mat()
+{
+	bgrPxl *r_imgPxl = (bgrPxl *) calloc( t0_rXc, sizeof(bgrPxl) );
+	acc_imgPxl_imgPxl(t0_rows, t0_cols, r_imgPxl, mats[0]);
+	
+	int eq=0;
+	for (int y=0; y < t0_rows; y++)
+	{
+		for (int x=0; x < t0_cols; x++)
+		{
+			eq+=!(r_imgPxl[y*t0_cols + x]->blue  == (int)mats[0].at<Vec3b>(y,x)[0]);
+			eq+=!(r_imgPxl[y*t0_cols + x]->green == (int)mats[0].at<Vec3b>(y,x)[1]);
+			eq+=!(r_imgPxl[y*t0_cols + x]->red   == (int)mats[0].at<Vec3b>(y,x)[2]);
+		}
+	}
+	mu_assert( eq==0, "acc has wrong value" );
+	
+	free(r_imgPxl);
+}
+
+
+char *
+test_divf_imgPxl_by_imgPxl_to_imgPxlf()
+{
+	
+}
+
+char *
+test_divf_imgPxl_by_imgPxl_into_imgPxlf()
 {
 
 }
 
 
 char *
-test_matsBGR_to_img3Diffs()
-{
-
-}
-
-char *
-test_matsBGR_into_img3Diffs()
-{
-
-}
-
-char *
-test_img3_to_img3Diffs()
-{
-
-}
-
-char *
-test_img3_into_img3Diffs()
+test_mul_imgPxl_by_imgPxlf()
 {
 
 }
 
 
 char *
-test_img3s_cmp_bgrPxl()
-{
-
-}
-
-
-char *
-test_acc_img3_img3()
-{
-
-}
-
-
-char *
-test_acc_img3_mat()
-{
-
-}
-
-
-char *
-test_divf_img3_by_img3_to_img3f()
+test_mul_imgPxl_by_imgPxlf_to_imgPxl()
 {
 
 }
 
 char *
-test_divf_img3_by_img3_into_img3f()
-{
-
-}
-
-
-char *
-test_mul_img3_by_img3f()
-{
-
-}
-
-
-char *
-test_mul_img3_by_img3f_to_img3()
+test_mul_imgPxl_by_imgPxlf_into_imgPxl()
 {
 
 }
 
 char *
-test_mul_img3_by_img3f_into_img3()
+test_imgPxl_into_mat()
 {
-
-}
-
-char *
-test_img3_into_mat()
-{
-
+	
 }
 
 
 char *
 all_tests()
 {
-	int *img1_input1 = (int *) calloc( count_t, sizeof(int) );
-	int *img1_expected1 = (int *) calloc( count_t, sizeof(int) );
+	int t_int;
+	float t_float;
 
-	for (int i=0; i < count_t; i++) {
-		img1_expected1 = i;
+	int t0_count = 3;
+	int t1_count = 3;
+	
+	int t0_rows = 3;
+	int t0_cols = 4;
+	int t0_rXc = t0_rows * t0_cols;
+	
+	int t0_scale_0 = 1;
+	int t0_scale_1 = 2;
+	int t0_scale_2 = 100;
+
+	int t1_rows = 1;
+	int t1_cols = 5;
+	int t1_rXc = t1_rows * t1_cols;
+
+	int l_int = 1;
+	int g_int = l_int + 1;
+
+	
+
+	int t1_imgInt_0[t1_rXc] =  {  1,  2,  3,  4,  5 };
+	int t1_imgInt_1[t1_rXc] =  {  4,  0,  1,  4,  3 };
+	int t1_imgInt_2[t1_rXc] =  {  2,  1,  4,  3,  0 };
+
+	int r1_gt_imgInt[t1_rXc] = {  1,  0,  2,  1,  0 };
+	int r1_lt_imgInt[t1_rXc] = {  0,  1,  1,  2,  2 };
+
+	int t1_imgInts_0[t1_count] = {t1_img1_0, t1_img1_1, t1_img1_2};
+	
+
+
+
+	Mat mat_8u  = Mat::ones(t0_rows, t0_cols, CV_8U )*t0_scale_0;
+	Mat mat_16u = Mat::ones(t0_rows, t0_cols, CV_16U)*t0_scale_1;
+	Mat mat_32u = Mat::ones(t0_rows, t0_cols, CV_32U)*t0_scale_2;
+	Mat mats[3] = {mat_8u, mat_16u, mat_32u};
+
+
+
+	bgrPxl t0_imgPxl_0[ t0_rXc ];
+	bgrPxl t0_pxl_0 = {t0_scale_0, t0_scale_0, t0_scale_0};
+	for (int i=0; i < t0_rXc; i++)
+	{
+		t0_imgPxl_0[i] = t0_pxl_0;
+	}
+
+	bgrPxl t0_imgPxl_1[ t0_rXc ];
+	bgrPxl t0_pxl_1 = {t0_scale_1, t0_scale_1, t0_scale_1};
+	for (int i=0; i < t0_rXc; i++)
+	{
+		t0_imgPxl_1[i] = t0_pxl_1;
+	}
+
+	bgrPxl t0_imgPxl_2[ t0_rXc ];
+	bgrPxl t0_pxl_2 = {t0_scale_2, t0_scale_2, t0_scale_2};
+	for (int i=0; i < t0_rXc; i++)
+	{
+		t0_imgPxl_2[i] = t0_pxl_2;
+	}
+
+	bgrPxl t0_imgPxls_0 = {t0_imgPxl_0, t0_imgPxl_1, t0_imgPxl_2};
+	
+	e0_gt_pxl = {t0_scale_2, t0_scale_2, t0_scale_2};
+	e0_lt_pxl = {t0_scale_0, t0_scale_0, t0_scale_0};
+	
+	
+	
+	unsigned long int e0_sum_0 = t0_rXc * t0_scale_0;
+	unsigned long int e0_sum_1 = t0_rXc * t0_scale_1;
+	unsigned long int e0_sum_2 = t0_rXc * t0_scale_2;
+	unsigned long int e0_sums_0[t0_count] = {e0_sum_0, e0_sum_1, e0_sum_2};
+
+	int e0_imgSum_0[ t0_rXc ];
+	for (int i=0; i < t0_rXc; i++)
+	{
+		e0_imgSum_0[i] = 3;
 	}
 	
+	int e0_imgSum_1[ t0_rXc ];
+	for (int i=0; i < t0_rXc; i++)
+	{
+		e0_imgSum_1[i] = 6;
+	}
+
+	int e0_imgSum_2[ t0_rXc ];
+	for (int i=0; i < t0_rXc; i++)
+	{
+		e0_imgSum_2[i] = 300;
+	}
+	
+	int *e0_imgSums_0[t0_count] = {e0_imgSum_0, e1_imgSum_1, e0_imgSum_2};
+
+	bgrPxl e0_imgDiff_mats01[t0_rXc];
+	bgrPxl e0_imgDiff_mats12[t0_rXc];
+	
+	bgrPxl e0_imgDiff_pxls01[t0_rXc];
+	bgrPxl e0_imgDiff_pxls12[t0_rXc];
+	
+	bgrPxlF e0_imgDivPxlf_01[ t0_rXc ];
+	bgrPxlF e0_imgDivPxlf_12[ t0_rXc ];
+	
+	bgrPxl e0_imgMulPxl_01[ t0_rXc ];
+	bgrPxl e0_imgMulPxl_12[ t0_rXc ];
+	
+	for (int y=0; y < t0_rows; y++)
+	{
+		for (int x=0; x < t0_cols; x++)
+		{
+			e0_imgDiff_mats01[y*t0_cols + x].blue = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDiff_mats01[y*t0_cols + x].green = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDiff_mats01[y*t0_cols + x].red = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+					
+			e0_imgDiff_mats12[y*t0_cols + x].blue = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDiff_mats12[y*t0_cols + x].green = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDiff_mats12[y*t0_cols + x].red = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			
+			
+			e0_imgDiff_pxls01[y*t0_cols + x].blue = 
+				t0_imgPxls_0[0][y*t0_cols+x].blue - t0_imgPxls_0[0][y*t0_cols+x].blue;
+			e0_imgDiff_pxls01[y*t0_cols + x].green = 
+				t0_imgPxls_0[1][y*t0_cols+x].green - t0_imgPxls_0[0][y*t0_cols+x].green;
+			e0_imgDiff_mats01[y*t0_cols + x].red = 
+				t0_imgPxls_0[1][y*t0_cols+x].red - t0_imgPxls_0[0][y*t0_cols+x].red;
+					
+			e0_imgDiff_pxls12[y*t0_cols + x].blue = 
+				t0_imgPxls_0[2][y*t0_cols+x].blue - t0_imgPxls_0[1][y*t0_cols+x].blue;
+			e0_imgDiff_pxls12[y*t0_cols + x].green = 
+				t0_imgPxls_0[2][y*t0_cols+x].green - t0_imgPxls_0[1][y*t0_cols+x].green;
+			e0_imgDiff_pxls12[y*t0_cols + x].red = 
+				t0_imgPxls_0[2][y*t0_cols+x].red - t0_imgPxls_0[1][y*t0_cols+x].red;
+				
+				
+			e0_imgDivPxlf_01[y*t0_cols + x].blue = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_01[y*t0_cols + x].green = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_01[y*t0_cols + x].red = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+					
+			e0_imgDivPxlf_12[y*t0_cols + x].blue = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_12[y*t0_cols + x].green = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_12[y*t0_cols + x].red = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+				
+			e0_imgMulPxl_01[y*t0_cols + x].blue = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_01[y*t0_cols + x].green = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_01[y*t0_cols + x].red = 
+				mats[1]->at<vec3b>(y,x).val[0] - mats[0]->at<vec3b>(y,x).val[0];
+					
+			e0_imgDivPxlf_12[y*t0_cols + x].blue = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_12[y*t0_cols + x].green = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+			e0_imgDivPxlf_12[y*t0_cols + x].red = 
+				mats[2]->at<vec3b>(y,x).val[0] - mats[1]->at<vec3b>(y,x).val[0];
+		}
+	}
+	
+	int *e0_imgDiffs_mats[t0_count-1] = {e0_imgDiff_mats01, e0_imgDiff_mats12};
+	int *e0_imgDiffs_pxls[t0_count-1] = {e0_imgDiff_pxls01, e0_imgDiff_pxls12};
+	
+	
+	
+
 	
 
 	mu_suite_start();
 	
-	mu_run_test(test_gt_cmp);
-	mu_run_test(test_lt_cmp);
+	mu_run_test(test_cmp_gt);
+	mu_run_test(test_cmp_lt);
 	mu_run_test(test_idx_cmp);
 	mu_run_test(test_bgr_sv_idx);
 	mu_run_test(test_mats_to_sums);
 	mu_run_test(test_mats_into_sums);
 	mu_run_test(test_mat_to_imgSum);
 	mu_run_test(test_mat_into_imgSum);
-	mu_run_test(test_img3_to_imgSum);
-	mu_run_test(test_img3_into_imgSum);
+	mu_run_test(test_imgPxl_to_imgSum);
+	mu_run_test(test_imgPxl_into_imgSum);
 	mu_run_test(test_mats_to_imgSums);
 	mu_run_test(test_mats_into_imgSums);
-	mu_run_test(test_img3s_to_imgSums);
-	mu_run_test(test_img3s_into_imgSums);
-	mu_run_test(test_img1s_imgIdx);
-	mu_run_test(test_matsBGR_to_img3Diffs);
-	mu_run_test(test_matsBGR_into_img3Diffs);
-	mu_run_test(test_img3s_to_img3Diffs);
-	mu_run_test(test_img3s_into_img3Diffs);
-	mu_run_test(test_img3s_cmp_bgrPxl);
-	mu_run_test(test_acc_img3_img3);
-	mu_run_test(test_acc_img3_mat);
-	mu_run_test(test_divf_img3_by_img3_to_img3f);
-	mu_run_test(test_divf_img3_by_img3_into_img3f);
-	mu_run_test(test_mul_img3_by_img3f);
-	mu_run_test(test_mul_img3_by_img3f_to_img3);
-	mu_run_test(test_mul_img3_by_img3f_into_img3);
-	mu_run_test(test_img3_into_mat);
-	
-	free(img1_expected1);
+	mu_run_test(test_imgPxls_to_imgSums);
+	mu_run_test(test_imgPxls_into_imgSums);
+	mu_run_test(test_imgInts_imgIdx);
+	mu_run_test(test_matsBGR_to_imgPxlDiffs);
+	mu_run_test(test_matsBGR_into_imgPxlDiffs);
+	mu_run_test(test_imgPxls_to_imgPxlDiffs);
+	mu_run_test(test_imgPxls_into_imgPxlDiffs);
+	mu_run_test(test_imgPxls_cmp_bgrPxl);
+	mu_run_test(test_acc_imgPxl_imgPxl);
+	mu_run_test(test_acc_imgPxl_mat);
+	mu_run_test(test_divf_imgPxl_by_imgPxl_to_imgPxlf);
+	mu_run_test(test_divf_imgPxl_by_imgPxl_into_imgPxlf);
+	mu_run_test(test_mul_imgPxl_by_imgPxlf);
+	mu_run_test(test_mul_imgPxl_by_imgPxlf_to_imgPxl);
+	mu_run_test(test_mul_imgPxl_by_imgPxlf_into_imgPxl);
+	mu_run_test(test_imgPxl_into_mat);
 	
 	return NULL;
 }
