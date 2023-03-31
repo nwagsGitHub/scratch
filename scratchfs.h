@@ -2,163 +2,179 @@
 #define __scratchfs_h__
 
 
+
+using namespace cv;
+
 typedef struct {
-	int blue,
-	int green,
-	int red
+	int blue;
+	int green;
+	int red;
 } bgrPxl;
 
 typedef struct {
-	float blue,
-	float green,
-	float red
+	float blue;
+	float green;
+	float red;
 } bgrPxlF;
 
 int
 idx_cmp (	int x, 
-			int idx_x, 
-			int idx_next, 
-			int xs_size, 
-			int *xs, 
-			int (*compar) (const void*, const void*)	);
+		int idx_x, 
+		int idx_next, 
+		int xs_size, 
+		const int *xs, 
+		int (*compar) (const void*, const void*)	);
 
 int
-gt_cmp (const void *a, 
-		const void *b	);
+cmp_gt (const void *a, 
+	const void *b	);
 
 int
-lt_cmp (const void *a, 
-		const void *b	);
+cmp_lt (const void *a, 
+	const void *b	);
 
 int
 bgr_sv_idx (int blue,
-				int green,
-				int red	);
+		int green,
+		int red	);
 
 unsigned long *
 mats_to_sums (	int size,
-					Mat **mats	);
+			const Mat *mats	);
 					
 unsigned long *
 mats_into_sums (	int size,
-					Mat **mats,
-					unsigned long *sums	);
+				const Mat *mats,
+				unsigned long *sums	);
 
 int *
 mat_to_imgSum (	Mat mat	);
 
 int *
-mat_to_imgSum (	Mat mat,
-				int *imgSum	);
+mat_into_imgSum (	Mat mat,
+			int *imgSum	);
 
 int *
-img3_to_imgSum (	int rows,
+imgPxl_to_imgSum (	int rows,
 					int cols,
-					bgrPxl *img3	);
+					bgrPxl *imgPxl	);
 
 int *
-img3_into_imgSum (	int rows,
+imgPxl_into_imgSum (	int rows,
 					int cols,
-					bgrPxl *img3,
+					bgrPxl *imgPxl,
 					int *imgSum	);
 
 int **
 mats_to_imgSums (	int size,
-					Mat *mats	);
+				const Mat *mats	);
 
 int **
-mats_to_imgSums (	int size,
-					Mat *mats,
-					int **imgSums	);
+mats_into_imgSums (	int size,
+				const Mat *mats,
+				int **imgSums	);
 
 int **
-img3s_to_imgSums (	int size,
+imgPxls_to_imgSums (	int size,
 					int rows,
 					int cols,
-					bgrPxl **img3s	);
+					bgrPxl **imgPxls	);
+
+int **
+imgPxls_to_imgSums (	int size,
+					int rows,
+					int cols,
+					bgrPxl **imgPxls	);
+
+int **
+imgPxls_into_imgSums (	int size,
+					int rows,
+					int cols,
+					bgrPxl **imgPxls,
+					int **imgSums	);
 
 int *
-img1s_imgIdx (	int size,
+imgInts_imgIdx (	int size,
 				int rows,
 				int cols,
 				int (*compar) (const void*, const void*),
-				int **img1s	);
+				const int **imgInts	);
 
 bgrPxl **
-matsBGR_to_img3Diffs (	int size,
-						Mat **mats	);
+matsBGR_to_imgPxlDiffs (	int size,
+						const Mat *mats	);
 
 bgrPxl **
-matsBGR_into_img3Diffs (	int size,
-							Mat **mats,
-							bgrPxl **img3Diffs	);
+matsBGR_into_imgPxlDiffs (	int size,
+						const Mat *mats,
+						bgrPxl **imgPxlDiffs	);
 
 bgrPxl **
-img3s_to_img3Diffs (	int size,
+imgPxls_to_imgPxlDiffs (	int size,
 						int rows,
 						int cols,
-						bgrPxl **img3s	);
+						bgrPxl **imgPxls	);
 
 bgrPxl **
-img3s_into_img3Diffs (	int size,
+imgPxls_into_imgPxlDiffs (	int size,
 						int rows,
 						int cols,
-						bgrPxl **img3s,
-						bgrPxl **img3Diffs	);
+						bgrPxl **imgPxls,
+						bgrPxl **imgPxlDiffs	);
 
 bgrPxl
-img3s_cmp_bgrPxl ( 	int size,
-				int rows,
+imgPxls_cmp_bgrPxl ( 	int size,
+					int rows,
+					int cols,
+					int (*compar) (const void*, const void*),
+					bgrPxl **imgPxls	);
+
+bgrPxl *
+acc_imgPxl_imgPxl (	int rows,
 				int cols,
-				int (*compar) (const void*, const void*),
-				bgr_pxl **img3s	);
+				bgrPxl *cum,
+				bgrPxl *add	);
 
 bgrPxl *
-acc_img3_img3 (	int rows,
-			int cols,
-			bgrPxl *cum,
-			bgrPxl *add	);
-
-bgrPxl *
-acc_img3_mat (	bgrPxl *cum,
+acc_imgPxl_mat (	bgrPxl *cum,
 				Mat mat	);
 
 bgrPxlF*
-divf_img3_by_img3_to_img3f (	int rows,
-								int cols,
-								bgrPxl *end,
-								bgrPxl *sor	);
+divf_imgPxl_by_imgPxl_to_imgPxlf (	int rows,
+								const int cols,
+								const bgrPxl *end,
+								const bgrPxl *sor	);
 
 bgrPxlF*
-divf_img3_by_img3_into_img3f (	int rows,
-								int cols,
-								bgrPxl *end,
-								bgrPxl *sor,
-								bgrPxl *quo	);
+divf_imgPxl_by_imgPxl_into_imgPxlf (	const int rows,
+									const int cols,
+									const bgrPxl *end,
+									const bgrPxl *sor,
+									bgrPxlF *quo	);
 
 bgrPxl *
-mul_img3_by_img3f (	int rows,
+mul_imgPxl_by_imgPxlf (	int rows,
 					int cols,
 					bgrPxl *lier,
 					bgrPxlF *cand	);
 
 bgrPxl *
-mul_img3_by_img3f_to_img3 (	int rows,
-							int cols,
-							bgrPxl *lier,
-							bgrPxlF *cand	);
+mul_imgPxl_by_imgPxlf_to_imgPxl (	int rows,
+								int cols,
+								bgrPxl *lier,
+								bgrPxlF *cand	);
 
 bgrPxl *
-mul_img3_by_img3f_into_img3 (	int rows,
-							int cols,
-							bgrPxl *lier,
-							bgrPxlF *cand,
-							bgrPxl *prod	);
+mul_imgPxl_by_imgPxlf_into_imgPxl (	int rows,
+								int cols,
+								bgrPxl *lier,
+								bgrPxlF *cand,
+								bgrPxl *prod	);
 
 Mat
-img3_into_mat ( int rows,
+imgPxl_into_mat (	int rows,
 				int cols,
-				bgrPxl *img3,
+				bgrPxl *imgPxl,
 				Mat mat	);
 
 

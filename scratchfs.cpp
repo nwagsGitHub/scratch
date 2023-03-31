@@ -9,11 +9,11 @@
 
 
 int 
-idx_cmp (	int x, 
-		int idx_x, 
-		int idx_next, 
-		int xs_size, 
-		int *xs, 
+idx_cmp (	const int x, 
+		const int idx_x, 
+		const int idx_next, 
+		const int xs_size, 
+		const int *xs, 
 		int (*compar) (const void*, const void*)	)
 {
 	int next_x = xs[0];
@@ -67,7 +67,7 @@ bgr_sv_idx (int blue,
 
 unsigned long *
 mats_to_sums (	int size,
-			Mat **mats	)
+			const Mat *mats	)
 {
 	int chans = mats->channels;
 	int cols = mats->cols;
@@ -97,7 +97,7 @@ mats_to_sums (	int size,
 
 unsigned long *
 mats_into_sums (	int size,
-				Mat **mats,
+				const Mat *mats,
 				unsigned long *sums	)
 {
 	int chans = mats->channels;
@@ -194,10 +194,10 @@ imgPxl_to_imgSum (	int rows,
 
 
 int *
-imgPxl_into_imgSum (	int rows,
-				int cols,
-				bgrPxl *imgPxl	
-				int *imgSum	)
+imgPxl_into_imgSum (	const int rows,
+					const int cols,
+					const bgrPxl *imgPxl	
+					int *imgSum	)
 {
 	for (int y=0; y < rows; y++)
 	{
@@ -214,7 +214,7 @@ imgPxl_into_imgSum (	int rows,
 
 
 int **
-mats_to_imgSums (	int size,
+mats_to_imgSums (	const int size,
 				Mat *mats	)
 {
 	int **imgSums = (int **) calloc( size, sizeof(int **) );
@@ -254,9 +254,9 @@ mats_into_imgSums (	int size,
 
 int **
 imgPxls_to_imgSums (	int size,
-				int rows,
-				int cols,
-				bgrPxl **imgPxls	)
+					int rows,
+					int cols,
+					bgrPxl **imgPxls	)
 {
 	int **imgSums = (int **) calloc( size, sizeof(int **) );
 	
@@ -274,7 +274,7 @@ imgPxls_into_imgSums (	int size,
 					int rows,
 					int cols,
 					bgrPxl **imgPxls,
-					int **imgSums	)
+					const int **imgSums	)
 {	
 	for (int i=0; i < size; i++)
 	{
@@ -299,7 +299,7 @@ imgInts_imgIdx (	int size,
 				int rows,
 				int cols,
 				int (*compar) (const void*, const void*),
-				int **imgInts	)
+				const int **imgInts	)
 {
 	int pxls[size-1];
 	int *imgIdx = (int *) calloc( size, sizeof(int) );
@@ -323,7 +323,7 @@ imgInts_imgIdx (	int size,
 
 bgrPxl **
 matsBGR_to_imgPxlDiffs (	int size,
-						Mat **mats	)
+						Mat *mats	)
 {
 	int chans = mats->channels;
 	int cols = mats->cols;
@@ -360,7 +360,7 @@ matsBGR_to_imgPxlDiffs (	int size,
 
 bgrPxl **
 matsBGR_into_imgPxlDiffs (	int size,
-						Mat **mats,
+						Mat *mats,
 						bgrPxl **imgPxlDiffs	)
 {
 	int chans = mats->channels;
@@ -395,9 +395,9 @@ matsBGR_into_imgPxlDiffs (	int size,
 
 bgrPxl **
 imgPxls_to_imgPxlDiffs (	int size,
-					int rows,
-					int cols,
-					bgrPxl **imgPxls	)
+						int rows,
+						int cols,
+						bgrPxl **imgPxls	)
 {
 	bgrPxl **imgPxlDiffs = (bgrPxl **) calloc( size-1, sizeof(bgrPxl *) );
 	
@@ -431,10 +431,10 @@ imgPxls_to_imgPxlDiffs (	int size,
 
 bgrPxl **
 imgPxls_into_imgPxlDiffs (	int size,
-					int rows,
-					int cols,
-					bgrPxl **imgPxls,
-					bgrPxl **imgPxlDiffs	)
+						int rows,
+						int cols,
+						bgrPxl **imgPxls,
+						bgrPxl **imgPxlDiffs	)
 {
 	for (int i=0; i < size-1; i++)
 	{
@@ -514,7 +514,7 @@ acc_imgPxl_imgPxl (	int rows,
 
 bgrPxl *
 acc_imgPxl_mat (	bgrPxl *cum,
-				Mat mat	)
+				const Mat mat	)
 {
 	int rows = mat.rows;
 	int cols = mat.rows;
@@ -522,9 +522,9 @@ acc_imgPxl_mat (	bgrPxl *cum,
 	{
 		for (int x=0; x < cols; x++)
 		{
-			(cum+ y*cols +x)->blue += mat.at<Vec3b>(y,x).val[0];
-			(cum+ y*cols +x)->green += mat.at<Vec3b>(y,x).val[1];
-			(cum+ y*cols +x)->red += mat.at<Vec3b>(y,x).val[2];
+			(cum+ y*cols +x).blue += mat.at<Vec3b>(y,x).val[0];
+			(cum+ y*cols +x).green += mat.at<Vec3b>(y,x).val[1];
+			(cum+ y*cols +x).red += mat.at<Vec3b>(y,x).val[2];
 		}
 	}
 	
@@ -534,10 +534,10 @@ acc_imgPxl_mat (	bgrPxl *cum,
 
 
 bgrPxlF *
-divf_imgPxl_by_imgPxl_to_imgPxlf (	int rows,
-								int cols,
-								bgrPxl *end,
-								bgrPxl *sor	)
+divf_imgPxl_by_imgPxl_to_imgPxlf (	const int rows,
+								const int cols,
+								const bgrPxl *end,
+								const bgrPxl *sor	)
 {
 	bgrPxlF *imgPxlf = (bgrPxlF *) calloc( rows * cols, sizeof(bgrPxlF) );
 	for (int y=0; y < rows; y++)
@@ -564,10 +564,10 @@ divf_imgPxl_by_imgPxl_to_imgPxlf (	int rows,
 
 
 bgrPxlF *
-divf_imgPxl_by_imgPxl_into_imgPxlf (	int rows,
-									int cols,
-									bgrPxl *end,
-									bgrPxl *sor,
+divf_imgPxl_by_imgPxl_into_imgPxlf (	const int rows,
+									const int cols,
+									const bgrPxl *end,
+									const bgrPxl *sor,
 									bgrPxlF *quo)
 {
 	for (int y=0; y < rows; y++)
