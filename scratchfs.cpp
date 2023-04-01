@@ -6,6 +6,185 @@
 #include "scratchfs.h"
 
 
+int ps_mat_i(const Mat mat) {
+	int chans = mat.channels();
+	int rows = mat.rows;
+	int cols = mat.cols;
+	
+	int y_lim = 2;
+	int x_lim = 2;
+	
+	int y_dots, x_dots;
+	y_dots = 0;
+	printf("MAT| rows: %d, cols: %d, channels: %d\n", rows, cols, chans);
+	for (int y=0; y < rows; y++)
+	{
+		if (y < y_lim || (rows - y) < y_lim+1)
+		{	
+			x_dots = 0;
+			for (int x=0; x < cols; x++)
+			{
+				if (x < x_lim || (cols - x) < x_lim+1)
+				{	
+					printf(" (");
+					for (int c=0; c < chans; c++)
+					{
+						printf(" %i", mat.at<Vec3b>(y,x).val[c] );
+						if (c < chans-1)
+							printf(",");
+					}
+					printf(") ");//(%d,%d) ",y,x);
+				} else {
+					if (x_dots < 3) 
+					{
+						printf("%c", '.');
+						x_dots++;
+					}
+				}
+			}
+		} else {
+			if (y_dots < 3) 
+			{
+				printf("%c", '.');
+				y_dots++;
+			}
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
+
+int ps_imgInt(const int rows,
+			const int cols,
+			const int *imgInt) {
+	
+	int y_lim = 2;
+	int x_lim = 2;
+	
+	int y_dots, x_dots;
+	y_dots = 0;
+	printf("imgInt| rows: %d, cols: %d\n", rows, cols);
+	for (int y=0; y < rows; y++)
+	{
+		if (y < y_lim || (rows - y) < y_lim+1)
+		{	
+			x_dots = 0;
+			for (int x=0; x < cols; x++)
+			{
+				if (x < x_lim || (cols - x) < x_lim+1)
+				{	
+					printf(" ( %i) ", imgInt[y*cols + x]);
+				} else {
+					if (x_dots < 3) 
+					{
+						printf("%c", '.');
+						x_dots++;
+					}
+				}
+			}
+		} else {
+			if (y_dots < 3) 
+			{
+				printf("%c", '.');
+				y_dots++;
+			}
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
+
+int ps_imgPxl(const int rows,
+			const int cols,
+			const bgrPxl *imgPxl) {
+	
+	int y_lim = 2;
+	int x_lim = 2;
+	
+	int y_dots, x_dots;
+	y_dots = 0;
+	printf("imgPxl| rows: %d, cols: %d\n", rows, cols);
+	for (int y=0; y < rows; y++)
+	{
+		if (y < y_lim || (rows - y) < y_lim+1)
+		{	
+			x_dots = 0;
+			for (int x=0; x < cols; x++)
+			{
+				if (x < x_lim || (cols - x) < x_lim+1)
+				{	
+					printf(" ( %i, %i, %i) ", 
+						imgPxl[y*cols + x].blue, 
+						imgPxl[y*cols + x].green,
+						imgPxl[y*cols + x].red);
+				} else {
+					if (x_dots < 3) 
+					{
+						printf("%c", '.');
+						x_dots++;
+					}
+				}
+			}
+		} else {
+			if (y_dots < 3) 
+			{
+				printf("%c", '.');
+				y_dots++;
+			}
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
+
+int ps_imgPxlF(const int rows,
+			const int cols,
+			const bgrPxlF *imgPxlf) {
+	
+	int y_lim = 2;
+	int x_lim = 2;
+	
+	int y_dots, x_dots;
+	y_dots = 0;
+	printf("imgPxl| rows: %d, cols: %d\n", rows, cols);
+	for (int y=0; y < rows; y++)
+	{
+		if (y < y_lim || (rows - y) < y_lim+1)
+		{	
+			x_dots = 0;
+			for (int x=0; x < cols; x++)
+			{
+				if (x < x_lim || (cols - x) < x_lim+1)
+				{	
+					printf(" ( %f, %f, %f) ", 
+						imgPxlf[y*cols + x].blue, 
+						imgPxlf[y*cols + x].green,
+						imgPxlf[y*cols + x].red);
+				} else {
+					if (x_dots < 3) 
+					{
+						printf("%c", '.');
+						x_dots++;
+					}
+				}
+			}
+		} else {
+			if (y_dots < 3) 
+			{
+				printf("%c", '.');
+				y_dots++;
+			}
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
+
+
 
 
 int 
@@ -17,12 +196,12 @@ idx_cmp (	const int x,
 		int (*compar) (const void*, const void*)	)
 {
 	int next_x = xs[0];
-	
 	if (xs_size==1)
-		return compar(x, next_x) ? idx_x : idx_next;
+		return compar(&x, &next_x) ? idx_x : idx_next;
+	
 	else
 	{
-		if ( compar(x, next_x) )
+		if ( compar(&x, &next_x) )
 			return idx_cmp (    x,     idx_x, idx_next+1, xs_size-1, xs+1, compar);
 		else
 			return idx_cmp (next_x, idx_next, idx_next+1, xs_size-1, xs+1, compar);
@@ -50,9 +229,9 @@ cmp_lt (const void *a,
 
 
 int
-bgr_sv_idx (int blue,
-		int green,
-		int red	)
+bgr_sv_idx (const int blue,
+		const int green,
+		const int red	)
 {
 	int colors[5] = {	green + green - ( blue + red  ),
 						red   + red   - ( blue + green),
@@ -66,14 +245,14 @@ bgr_sv_idx (int blue,
 
 
 unsigned long *
-mats_to_sums (	int size,
+mats_to_sums (	const int size,
 			const Mat *mats	)
 {
-	int chans = mats->channels;
+	int chans = mats->channels();
 	int cols = mats->cols;
 	int rows = mats->rows;
 	unsigned long *sums = (unsigned long *) calloc( size, sizeof(unsigned long) );
-	unsigned long sum = 0;	
+	unsigned long sum = 0;
 
 	for (int i=0; i < size; i++)
 	{
@@ -96,11 +275,11 @@ mats_to_sums (	int size,
 
 
 unsigned long *
-mats_into_sums (	int size,
-				const Mat *mats,
-				unsigned long *sums	)
+mats_into_sums (const int size,
+			const Mat *mats,
+			unsigned long *sums	)
 {
-	int chans = mats->channels;
+	int chans = mats->channels();
 	int cols = mats->cols;
 	int rows = mats->rows;
 	unsigned long sum = 0;	
@@ -127,11 +306,11 @@ mats_into_sums (	int size,
 
 
 int *
-mat_to_imgSum (	Mat mat	)
+mat_to_imgSum (	const Mat mat	)
 {
-	int chans = mat->channels;
-	int cols = mat->cols;
-	int rows = mat->rows;
+	int chans = mat.channels();
+	int cols = mat.cols;
+	int rows = mat.rows;
 	int *imgSum = (int *) calloc( rows * cols, sizeof(int) );
 	
 	for (int y=0; y < rows; y++)
@@ -149,17 +328,18 @@ mat_to_imgSum (	Mat mat	)
 }
 
 int *
-mat_into_imgSum (	Mat mat,
+mat_into_imgSum (	const Mat mat,
 				int *imgSum	)
 {
-	int chans = mat->channels;
-	int cols = mat->cols;
-	int rows = mat->rows;
+	int chans = mat.channels();
+	int cols = mat.cols;
+	int rows = mat.rows;
 	
 	for (int y=0; y < rows; y++)
 	{
 		for (int x=0; x < cols; x++)
 		{
+			*(imgSum+ y*cols +x) = 0;
 			for (int c=0; c < chans; c++)
 			{
 				*(imgSum+ y*cols +x) += mat.at<Vec3b>(y,x).val[c];
@@ -173,9 +353,9 @@ mat_into_imgSum (	Mat mat,
 
 
 int *
-imgPxl_to_imgSum (	int rows,
-				int cols,
-				bgrPxl *imgPxl	)
+imgPxl_to_imgSum (	const int rows,
+				const int cols,
+				const bgrPxl *imgPxl	)
 {
 	int *imgSum = (int *) calloc( rows * cols, sizeof(int) );
 	
@@ -196,7 +376,7 @@ imgPxl_to_imgSum (	int rows,
 int *
 imgPxl_into_imgSum (	const int rows,
 					const int cols,
-					const bgrPxl *imgPxl	
+					const bgrPxl *imgPxl,
 					int *imgSum	)
 {
 	for (int y=0; y < rows; y++)
@@ -215,7 +395,7 @@ imgPxl_into_imgSum (	const int rows,
 
 int **
 mats_to_imgSums (	const int size,
-				Mat *mats	)
+				const Mat *mats	)
 {
 	int **imgSums = (int **) calloc( size, sizeof(int **) );
 	
@@ -229,20 +409,22 @@ mats_to_imgSums (	const int size,
 
 
 int **
-mats_into_imgSums (	int size,
-				Mat *mats,
+mats_into_imgSums (	const int size,
+				const Mat *mats,
 				int	**imgSums	)
 {
+	int chans = mats->channels();
+	int rows = mats->rows;
+	int cols = mats->cols;
 	for (int i=0; i < size; i++)
 	{
 		for (int y=0; y < rows; y++)
 		{
 			for (int x=0; x < cols; x++)
 			{
-				*(*(imgSums+i)+ y*cols +x) = 
-					(imgPxl+ y*cols +x)->blue +
-					(imgPxl+ y*cols +x)->green + 
-					(imgPxl+ y*cols +x)->red;
+				*(*(imgSums+i)+ y*cols +x) = 0;
+				for (int c=0; c < chans; c++)
+					*(*(imgSums+i)+ y*cols +x) += mats[i].at<Vec3b>(y,x)[c];
 			}
 		}
 	}
@@ -253,10 +435,10 @@ mats_into_imgSums (	int size,
 
 
 int **
-imgPxls_to_imgSums (	int size,
-					int rows,
-					int cols,
-					bgrPxl **imgPxls	)
+imgPxls_to_imgSums (const int size,
+				const int rows,
+				const int cols,
+				bgrPxl **imgPxls	)
 {
 	int **imgSums = (int **) calloc( size, sizeof(int **) );
 	
@@ -270,11 +452,11 @@ imgPxls_to_imgSums (	int size,
 
 
 int **
-imgPxls_into_imgSums (	int size,
-					int rows,
-					int cols,
+imgPxls_into_imgSums (	const int size,
+					const int rows,
+					const int cols,
 					bgrPxl **imgPxls,
-					const int **imgSums	)
+					int **imgSums	)
 {	
 	for (int i=0; i < size; i++)
 	{
@@ -295,11 +477,11 @@ imgPxls_into_imgSums (	int size,
 
 
 int *
-imgInts_imgIdx (	int size,
-				int rows,
-				int cols,
-				int (*compar) (const void*, const void*),
-				const int **imgInts	)
+imgInts_imgIdx (const int size,
+			const int rows,
+			const int cols,
+			int (*compar) (const void*, const void*),
+			const int **imgInts	)
 {
 	int pxls[size-1];
 	int *imgIdx = (int *) calloc( size, sizeof(int) );
@@ -322,10 +504,10 @@ imgInts_imgIdx (	int size,
 
 
 bgrPxl **
-matsBGR_to_imgPxlDiffs (	int size,
-						Mat *mats	)
+matsBGR_to_imgPxlDiffs (	const int size,
+						const Mat *mats	)
 {
-	int chans = mats->channels;
+	int chans = mats->channels();
 	int cols = mats->cols;
 	int rows = mats->rows;
 	bgrPxl **imgPxlDiffs = (bgrPxl **) calloc( size-1, sizeof(bgrPxl *) );
@@ -338,16 +520,16 @@ matsBGR_to_imgPxlDiffs (	int size,
 			for (int x=0; x < cols; x++)
 			{
 				(imgPxlDiff+ y*cols +x)->blue = 
-					mats[i+1]->at<Vec3b>(y,x).val[0] -
-					mats[i]->at<Vec3b>(y,x).val[0];
+					mats[i+1].at<Vec3b>(y,x).val[0] -
+					mats[i].at<Vec3b>(y,x).val[0];
 					
 				(imgPxlDiff+ y*cols +x)->green = 
-					mats[i+1]->at<Vec3b>(y,x).val[1] -
-					mats[i]->at<Vec3b>(y,x).val[1];
+					mats[i+1].at<Vec3b>(y,x).val[1] -
+					mats[i].at<Vec3b>(y,x).val[1];
 					
 				(imgPxlDiff+ y*cols +x)->red = 
-					mats[i+1]->at<Vec3b>(y,x).val[2] -
-					mats[i]->at<Vec3b>(y,x).val[2];
+					mats[i+1].at<Vec3b>(y,x).val[2] -
+					mats[i].at<Vec3b>(y,x).val[2];
 			}
 		}
 		*(imgPxlDiffs+i) = imgPxlDiff;
@@ -359,11 +541,11 @@ matsBGR_to_imgPxlDiffs (	int size,
 
 
 bgrPxl **
-matsBGR_into_imgPxlDiffs (	int size,
-						Mat *mats,
+matsBGR_into_imgPxlDiffs (	const int size,
+						const Mat *mats,
 						bgrPxl **imgPxlDiffs	)
 {
-	int chans = mats->channels;
+	int chans = mats->channels();
 	int cols = mats->cols;
 	int rows = mats->rows;
 	
@@ -374,16 +556,16 @@ matsBGR_into_imgPxlDiffs (	int size,
 			for (int x=0; x < cols; x++)
 			{
 				(*(imgPxlDiffs+i)+ y*cols +x)->blue = 
-					mats[i+1]->at<Vec3b>(y,x).val[0] -
-					mats[i]->at<Vec3b>(y,x).val[0];
+					mats[i+1].at<Vec3b>(y,x).val[0] -
+					mats[i].at<Vec3b>(y,x).val[0];
 					
 				(*(imgPxlDiffs+i)+ y*cols +x)->green = 
-					mats[i+1]->at<Vec3b>(y,x).val[1] -
-					mats[i]->at<Vec3b>(y,x).val[1];
+					mats[i+1].at<Vec3b>(y,x).val[1] -
+					mats[i].at<Vec3b>(y,x).val[1];
 					
 				(*(imgPxlDiffs+i)+ y*cols +x)->red = 
-					mats[i+1]->at<Vec3b>(y,x).val[2] -
-					mats[i]->at<Vec3b>(y,x).val[2];
+					mats[i+1].at<Vec3b>(y,x).val[2] -
+					mats[i].at<Vec3b>(y,x).val[2];
 			}
 		}
 	}
@@ -394,9 +576,9 @@ matsBGR_into_imgPxlDiffs (	int size,
 
 
 bgrPxl **
-imgPxls_to_imgPxlDiffs (	int size,
-						int rows,
-						int cols,
+imgPxls_to_imgPxlDiffs (	const int size,
+						const int rows,
+						const int cols,
 						bgrPxl **imgPxls	)
 {
 	bgrPxl **imgPxlDiffs = (bgrPxl **) calloc( size-1, sizeof(bgrPxl *) );
@@ -430,9 +612,9 @@ imgPxls_to_imgPxlDiffs (	int size,
 
 
 bgrPxl **
-imgPxls_into_imgPxlDiffs (	int size,
-						int rows,
-						int cols,
+imgPxls_into_imgPxlDiffs (	const int size,
+						const int rows,
+						const int cols,
 						bgrPxl **imgPxls,
 						bgrPxl **imgPxlDiffs	)
 {
@@ -463,24 +645,24 @@ imgPxls_into_imgPxlDiffs (	int size,
 
 
 bgrPxl
-imgPxls_cmp_bgrPxl ( 	int size,
-					int rows,
-					int cols,
+imgPxls_cmp_bgrPxl ( 	const int size,
+					const int rows,
+					const int cols,
 					int (*compar) (const void*, const void*),
-					bgr_pxl **imgPxls	)
+					bgrPxl **imgPxls	)
 {
-	bgrPxl pxl = {0,0,0};
+	bgrPxl pxl = { (*imgPxls)->blue, (*imgPxls)->green, (*imgPxls)->red };
 	for (int i=0; i < size; i++)
 	{
 		for (int y=0; y < rows; y++)
 		{
 			for (int x=0; x < cols; x++)
 			{
-				if ( compar( (*(imgPxls+i)+ y*cols +x)->blue, pxl.blue) )
+				if ( compar( &((*(imgPxls+i)+ y*cols +x)->blue), &(pxl.blue) ) )
 					pxl.blue = (*(imgPxls+i)+ y*cols +x)->blue;
-				if ( compar( (*(imgPxls+i)+ y*cols +x)->green, pxl.green) )
+				if ( compar( &((*(imgPxls+i)+ y*cols +x)->green), &(pxl.green) ) )
 					pxl.green = (*(imgPxls+i)+ y*cols +x)->green;
-				if ( compar( (*(imgPxls+i)+ y*cols +x)->red, pxl.red) )
+				if ( compar( &((*(imgPxls+i)+ y*cols +x)->red), &(pxl.red) ) )
 					pxl.red = (*(imgPxls+i)+ y*cols +x)->red;
 			}
 		}
@@ -492,10 +674,10 @@ imgPxls_cmp_bgrPxl ( 	int size,
 
 
 bgrPxl *
-acc_imgPxl_imgPxl (	int rows,
-				int cols,
+acc_imgPxl_imgPxl (	const int rows,
+				const int cols,
 				bgrPxl *cum,
-				bgrPxl *add	)
+				const bgrPxl *add	)
 {
 	for (int y=0; y < rows; y++)
 	{
@@ -513,18 +695,19 @@ acc_imgPxl_imgPxl (	int rows,
 
 
 bgrPxl *
-acc_imgPxl_mat (	bgrPxl *cum,
-				const Mat mat	)
+acc_imgPxl_mat (bgrPxl *cum,
+			const Mat mat	)
 {
 	int rows = mat.rows;
-	int cols = mat.rows;
+	int cols = mat.cols;
+
 	for (int y=0; y < rows; y++)
 	{
 		for (int x=0; x < cols; x++)
 		{
-			(cum+ y*cols +x).blue += mat.at<Vec3b>(y,x).val[0];
-			(cum+ y*cols +x).green += mat.at<Vec3b>(y,x).val[1];
-			(cum+ y*cols +x).red += mat.at<Vec3b>(y,x).val[2];
+			(cum+ y*cols +x)->blue  += mat.at<Vec3b>(y,x).val[0];
+			(cum+ y*cols +x)->green += mat.at<Vec3b>(y,x).val[1];
+			(cum+ y*cols +x)->red   += mat.at<Vec3b>(y,x).val[2];
 		}
 	}
 	
@@ -594,10 +777,10 @@ divf_imgPxl_by_imgPxl_into_imgPxlf (	const int rows,
 
 
 bgrPxl *
-mul_imgPxl_by_imgPxlf (	int rows,
-					int cols,
+mul_imgPxl_by_imgPxlf (	const int rows,
+					const int cols,
 					bgrPxl *lier,
-					bgrPxlF *cand	)
+					const bgrPxlF *cand	)
 {
 	for (int y=0; y < rows; y++)
 	{
@@ -623,10 +806,10 @@ mul_imgPxl_by_imgPxlf (	int rows,
 
 
 bgrPxl *
-mul_imgPxl_by_imgPxlf_to_imgPxl (	int rows,
-								int cols,
-								bgrPxl *lier,
-								bgrPxlF *cand	)
+mul_imgPxl_by_imgPxlf_to_imgPxl (	const int rows,
+								const int cols,
+								const bgrPxl *lier,
+								const bgrPxlF *cand	)
 {
 	bgrPxl *prod = (bgrPxl *) calloc( rows * cols, sizeof(bgrPxl) );
 	for (int y=0; y < rows; y++)
@@ -653,10 +836,10 @@ mul_imgPxl_by_imgPxlf_to_imgPxl (	int rows,
 
 
 bgrPxl *
-mul_imgPxl_by_imgPxlf_into_imgPxl (	int rows,
-								int cols,
-								bgrPxl *lier,
-								bgrPxlF *cand,
+mul_imgPxl_by_imgPxlf_into_imgPxl (	const int rows,
+								const int cols,
+								const bgrPxl *lier,
+								const bgrPxlF *cand,
 								bgrPxl *prod	)
 {
 	for (int y=0; y < rows; y++)
@@ -683,18 +866,18 @@ mul_imgPxl_by_imgPxlf_into_imgPxl (	int rows,
 
 
 Mat
-imgPxl_into_mat ( int rows,
-				int cols,
-				bgrPxl *imgPxl,
+imgPxl_into_mat ( const int rows,
+				const int cols,
+				const bgrPxl *imgPxl,
 				Mat mat	)
 {
 	for (int y=0; y < rows; y++) 
 	{
 		for (int x=0; x < cols; x++)
 		{
-			mat.at<Vec3b>[0] = (imgPxl+ y*cols +x)->blue;
-			mat.at<Vec3b>[1] = (imgPxl+ y*cols +x)->green;
-			mat.at<Vec3b>[2] = (imgPxl+ y*cols +x)->red;
+			mat.at<Vec3b>(y,x).val[0] = (imgPxl+ y*cols +x)->blue;
+			mat.at<Vec3b>(y,x).val[1] = (imgPxl+ y*cols +x)->green;
+			mat.at<Vec3b>(y,x).val[2] = (imgPxl+ y*cols +x)->red;
 		}
 	}
 

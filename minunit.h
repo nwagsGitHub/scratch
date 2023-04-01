@@ -11,6 +11,13 @@
 #define mu_assert(test, message) if (!(test)) { \
 	log_err(message); return message; }
 	
+#define mu_assert_re(test, message, result, expected) if (!(test)) { \
+	log_err(message); \
+	fprintf(stderr, \
+		"[INFO] (result: %s| expected: %s) \n", \
+		result, expected); \
+		return message; }
+	
 #define mu_run_test(test) debug("\n-----%s", " " #test); \
 	message = test(); tests_run++; if (message) return message;
 
